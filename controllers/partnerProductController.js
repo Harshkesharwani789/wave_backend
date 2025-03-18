@@ -1,23 +1,23 @@
-const PartnerProduct = require("../models/partnerProduct");
+const PartnerProduct = require("../models/PartnerProduct");
 const { errorHandler } = require("../utils/errorHandler");
 
 // Create a new product
 exports.createProduct = async (req, res) => {
   try {
     const { name, price, quantity, description } = req.body;
-    
+
     const product = await PartnerProduct.create({
       partner: req.partner._id,
       name,
       price,
       unit: quantity,
-      description
+      description,
     });
 
     res.status(201).json({
       success: true,
       message: "Product created successfully",
-      data: product
+      data: product,
     });
   } catch (error) {
     errorHandler(res, error);
@@ -28,11 +28,11 @@ exports.createProduct = async (req, res) => {
 exports.getPartnerProducts = async (req, res) => {
   try {
     const products = await PartnerProduct.find({ partner: req.partner._id });
-    
+
     res.status(200).json({
       success: true,
       count: products.length,
-      data: products
+      data: products,
     });
   } catch (error) {
     errorHandler(res, error);
@@ -44,19 +44,19 @@ exports.getProduct = async (req, res) => {
   try {
     const product = await PartnerProduct.findOne({
       _id: req.params.id,
-      partner: req.partner._id
+      partner: req.partner._id,
     });
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found"
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      data: product
+      data: product,
     });
   } catch (error) {
     errorHandler(res, error);
@@ -67,14 +67,14 @@ exports.getProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const { name, price, quantity, description } = req.body;
-    
+
     const product = await PartnerProduct.findOneAndUpdate(
       { _id: req.params.id, partner: req.partner._id },
-      { 
+      {
         name,
         price,
         unit: quantity,
-        description
+        description,
       },
       { new: true, runValidators: true }
     );
@@ -82,14 +82,14 @@ exports.updateProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found"
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
       message: "Product updated successfully",
-      data: product
+      data: product,
     });
   } catch (error) {
     errorHandler(res, error);
@@ -101,19 +101,19 @@ exports.deleteProduct = async (req, res) => {
   try {
     const product = await PartnerProduct.findOneAndDelete({
       _id: req.params.id,
-      partner: req.partner._id
+      partner: req.partner._id,
     });
 
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found"
+        message: "Product not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Product deleted successfully"
+      message: "Product deleted successfully",
     });
   } catch (error) {
     errorHandler(res, error);
