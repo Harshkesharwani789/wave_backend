@@ -1,10 +1,10 @@
-const Booking = require('../models/booking');
-const Partner = require('../models/Partner');
-const User = require('../models/User');
-const Support = require('../models/Support');
-const Token = require('../models/Token');
-const Quotation = require('../models/Quotation');
-const Transaction = require('../models/Transaction');
+const Booking = require("../models/booking");
+const Partner = require("../models/Paartner");
+const User = require("../models/User");
+const Support = require("../models/Support");
+const Token = require("../models/Token");
+const Quotation = require("../models/Quotation");
+const Transaction = require("../models/Transaction");
 
 // Enhanced partner performance metrics
 exports.getDetailedPartnerMetrics = async (req, res) => {
@@ -21,25 +21,25 @@ exports.getDetailedPartnerMetrics = async (req, res) => {
       {
         $match: {
           partner: mongoose.Types.ObjectId(partnerId),
-          ...dateQuery
-        }
+          ...dateQuery,
+        },
       },
       {
         $group: {
           _id: null,
           totalBookings: { $sum: 1 },
           completedBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
           },
           cancelledBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] },
           },
-          totalEarnings: { $sum: '$partnerEarnings' },
-          averageRating: { $avg: '$rating' },
-          responseTime: { $avg: '$partnerResponseTime' },
-          serviceTime: { $avg: '$serviceCompletionTime' }
-        }
-      }
+          totalEarnings: { $sum: "$partnerEarnings" },
+          averageRating: { $avg: "$rating" },
+          responseTime: { $avg: "$partnerResponseTime" },
+          serviceTime: { $avg: "$serviceCompletionTime" },
+        },
+      },
     ]);
 
     // Get support metrics
@@ -47,42 +47,42 @@ exports.getDetailedPartnerMetrics = async (req, res) => {
       {
         $match: {
           requestedBy: mongoose.Types.ObjectId(partnerId),
-          requestorType: 'Partner',
-          ...dateQuery
-        }
+          requestorType: "Partner",
+          ...dateQuery,
+        },
       },
       {
         $group: {
           _id: null,
           totalTickets: { $sum: 1 },
           resolvedTickets: {
-            $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "resolved"] }, 1, 0] },
           },
           averageResolutionTime: {
             $avg: {
               $cond: [
-                { $eq: ['$status', 'resolved'] },
-                { $subtract: ['$resolvedAt', '$createdAt'] },
-                0
-              ]
-            }
-          }
-        }
-      }
+                { $eq: ["$status", "resolved"] },
+                { $subtract: ["$resolvedAt", "$createdAt"] },
+                0,
+              ],
+            },
+          },
+        },
+      },
     ]);
 
     res.json({
       success: true,
       data: {
         bookingMetrics: metrics[0] || {},
-        supportMetrics: supportMetrics[0] || {}
-      }
+        supportMetrics: supportMetrics[0] || {},
+      },
     });
   } catch (error) {
-    console.error('Partner Metrics Error:', error);
+    console.error("Partner Metrics Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching partner metrics'
+      message: "Error fetching partner metrics",
     });
   }
 };
@@ -92,7 +92,7 @@ exports.getQuotationAnalytics = async (req, res) => {
   try {
     const { startDate, endDate, partnerId } = req.query;
     const query = {};
-    
+
     if (partnerId) query.partner = partnerId;
     if (startDate || endDate) {
       query.createdAt = {};
@@ -107,33 +107,33 @@ exports.getQuotationAnalytics = async (req, res) => {
           _id: null,
           totalQuotations: { $sum: 1 },
           acceptedQuotations: {
-            $sum: { $cond: [{ $eq: ['$status', 'accepted'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "accepted"] }, 1, 0] },
           },
           rejectedQuotations: {
-            $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "rejected"] }, 1, 0] },
           },
-          averageAmount: { $avg: '$amount' },
-          totalAmount: { $sum: '$amount' },
+          averageAmount: { $avg: "$amount" },
+          totalAmount: { $sum: "$amount" },
           byService: {
             $push: {
-              service: '$service',
-              amount: '$amount',
-              status: '$status'
-            }
-          }
-        }
-      }
+              service: "$service",
+              amount: "$amount",
+              status: "$status",
+            },
+          },
+        },
+      },
     ]);
 
     res.json({
       success: true,
-      data: analytics[0] || {}
+      data: analytics[0] || {},
     });
   } catch (error) {
-    console.error('Quotation Analytics Error:', error);
+    console.error("Quotation Analytics Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching quotation analytics'
+      message: "Error fetching quotation analytics",
     });
   }
 };
@@ -143,7 +143,7 @@ exports.getTokenAnalytics = async (req, res) => {
   try {
     const { startDate, endDate, type } = req.query;
     const query = {};
-    
+
     if (type) query.type = type;
     if (startDate || endDate) {
       query.createdAt = {};
@@ -158,40 +158,40 @@ exports.getTokenAnalytics = async (req, res) => {
           _id: null,
           totalTokens: { $sum: 1 },
           resolvedTokens: {
-            $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "resolved"] }, 1, 0] },
           },
           pendingTokens: {
-            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
           },
           averageResolutionTime: {
             $avg: {
               $cond: [
-                { $eq: ['$status', 'resolved'] },
-                { $subtract: ['$resolvedAt', '$createdAt'] },
-                0
-              ]
-            }
+                { $eq: ["$status", "resolved"] },
+                { $subtract: ["$resolvedAt", "$createdAt"] },
+                0,
+              ],
+            },
           },
           byType: {
             $push: {
-              type: '$type',
-              status: '$status',
-              priority: '$priority'
-            }
-          }
-        }
-      }
+              type: "$type",
+              status: "$status",
+              priority: "$priority",
+            },
+          },
+        },
+      },
     ]);
 
     res.json({
       success: true,
-      data: analytics[0] || {}
+      data: analytics[0] || {},
     });
   } catch (error) {
-    console.error('Token Analytics Error:', error);
+    console.error("Token Analytics Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching token analytics'
+      message: "Error fetching token analytics",
     });
   }
 };
@@ -214,13 +214,13 @@ exports.getDashboardAnalytics = async (req, res) => {
         $group: {
           _id: null,
           totalBookings: { $sum: 1 },
-          totalRevenue: { $sum: '$totalAmount' },
-          averageBookingValue: { $avg: '$totalAmount' },
+          totalRevenue: { $sum: "$totalAmount" },
+          averageBookingValue: { $avg: "$totalAmount" },
           completionRate: {
-            $avg: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
-          }
-        }
-      }
+            $avg: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     // Get user analytics
@@ -231,10 +231,10 @@ exports.getDashboardAnalytics = async (req, res) => {
           _id: null,
           totalUsers: { $sum: 1 },
           activeUsers: {
-            $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $eq: ["$status", "active"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     // Get partner analytics
@@ -245,11 +245,11 @@ exports.getDashboardAnalytics = async (req, res) => {
           _id: null,
           totalPartners: { $sum: 1 },
           activePartners: {
-            $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ["$status", "active"] }, 1, 0] },
           },
-          averageRating: { $avg: '$rating' }
-        }
-      }
+          averageRating: { $avg: "$rating" },
+        },
+      },
     ]);
 
     res.json({
@@ -257,14 +257,14 @@ exports.getDashboardAnalytics = async (req, res) => {
       data: {
         bookings: bookingAnalytics[0] || {},
         users: userAnalytics[0] || {},
-        partners: partnerAnalytics[0] || {}
-      }
+        partners: partnerAnalytics[0] || {},
+      },
     });
   } catch (error) {
-    console.error('Dashboard Analytics Error:', error);
+    console.error("Dashboard Analytics Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching dashboard analytics'
+      message: "Error fetching dashboard analytics",
     });
   }
 };

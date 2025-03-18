@@ -4,7 +4,7 @@ const Service = require("../models/Service");
 const SubService = require("../models/SubService");
 const SubCategory = require("../models/SubCategory");
 const Booking = require("../models/booking");
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const Product = require("../models/product");
 const Review = require("../models/Review");
 
