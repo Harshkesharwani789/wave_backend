@@ -62,6 +62,10 @@ const subServiceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    user : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
     service: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Service',
@@ -79,10 +83,6 @@ const subServiceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Review', 
     }], 
-    user : {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    },
     price: {
         type: Number,
         required: true
@@ -138,3 +138,17 @@ subServiceSchema.pre('save', function (next) {
 const SubService = mongoose.model('SubService', subServiceSchema);
 
 module.exports = SubService;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

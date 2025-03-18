@@ -356,20 +356,30 @@ exports.updateBooking = async (req, res) => {
 
 
 // Cancel booking
+// Cancel booking
 exports.cancelBooking = async (req, res) => {
     try {
-        const { bookingId } = req.params;
-        const { cancellationReason } = req.body;
+        console.log("Cancel Booking - Request Params:", req.params);
+        console.log("Cancel Booking - Request Body:", req.body);
 
-        const booking = await Booking.findOne({
-            _id: bookingId,
-            user: req.user._id,
-        });
+        const { bookingId } = req.params;
+        const { cancellationReason, userId } = req.body;
+
+        // Validate if userId and bookingId are provided
+        if (!bookingId || !userId) {
+            return res.status(400).json({
+                success: false,
+                message: "Booking ID and User ID are required",
+            });
+        }
+
+        // Find the booking by ID and user
+        const booking = await Booking.findOne({ _id: bookingId, user: userId });
 
         if (!booking) {
             return res.status(404).json({
                 success: false,
-                message: "Booking not found",
+                message: "Booking not found or does not belong to the user",
             });
         }
 
@@ -387,31 +397,22 @@ exports.cancelBooking = async (req, res) => {
             });
         }
 
+        // Update booking status
         booking.status = "cancelled";
-        booking.cancellationReason = cancellationReason;
+        booking.cancellationReason = cancellationReason || "No reason provided";
         booking.cancellationTime = new Date();
 
         await booking.save();
 
-        // Correcting the population hierarchy
-        await booking.populate({
-            path: 'subService',
-            populate: {
-                path: 'service', // SubService -> Service
-                populate: {
-                    path: 'subCategory', // Service -> SubCategory
-                    populate: {
-                        path: 'category', // SubCategory -> Category
-                        select: 'name'
-                    }
-                }
-            }
-        });
+        // Populate the booking with sub-service and user details
+        const populatedBooking = await Booking.findById(booking._id)
+            .populate('subService', 'name description price')
+            .populate('user', 'name email phone');
 
         res.status(200).json({
             success: true,
             message: "Booking cancelled successfully",
-            data: booking,
+            booking: populatedBooking,
         });
     } catch (error) {
         console.error("Error in cancelBooking:", error);
@@ -422,6 +423,8 @@ exports.cancelBooking = async (req, res) => {
         });
     }
 };
+
+
 
 // Add review
 exports.addReview = async (req, res) => {

@@ -10,8 +10,18 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 require("dotenv").config();
 const bodyParser = require('body-parser');
-
+const socketIo = require("socket.io"); // Add this
+const http = require("http");
 const app = express();
+const server = http.createServer(app); // Create HTTP server
+const io = socketIo(server, { // Initialize Socket.io
+  cors: {
+    origin: "*", // Allow all origins for development
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  }
+});
+
 
 // Connect to MongoDB first
 connectDB()
@@ -34,6 +44,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+
+
+
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -97,6 +111,7 @@ const userBannerRoutes = require("./routes/userBannerRoutes");
 const adminBookingRoutes = require("./routes/adminBookingRoutes");
 const adminBookingController = require('./controllers/adminBookingController');
 
+
 // Routes
 app.use("/api/user", userRoutes);
 app.use("/api/user", userServiceRoutes);
@@ -111,6 +126,7 @@ app.use("/api/public", serviceHierarchyRoutes);
 app.use("/api/admin/banners", adminBannerRoutes);
 app.use("/api/user/banners", userBannerRoutes);
 app.use("/api/admin/bookings", adminBookingRoutes);
+
 
 // Add this console.log
 console.log('Registering admin routes...');
@@ -135,6 +151,11 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === "development" ? err : undefined,
   });
 });
+
+
+
+
+
 
 // Start server with better port handling
 async function startServer(port) {
@@ -183,3 +204,5 @@ async function startServer(port) {
 // Use port from environment variable or default to 3000
 const PORT = process.env.PORT || 9000;
 startServer(PORT);
+
+
