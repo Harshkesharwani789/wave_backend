@@ -1,10 +1,10 @@
-const Review = require('../models/Review');
-const User = require('../models/User');
-const Booking = require('../models/booking');
-const SubService = require('../models/SubService');
+const Review = require("../models/Review");
+const User = require("../models/User");
+const Booking = require("../models/booking");
+const SubService = require("../models/SubService");
 const Wallet = require("../models/Wallet");
 const { v4: uuidv4 } = require("uuid");
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const Contact = require("../models/Contact");
 
 // Submit a new review
@@ -14,62 +14,65 @@ exports.submitReview = async (req, res) => {
   console.log(user, subService, rating, comment, "testing");
 
   try {
-      // Check if the user has already reviewed this subService
-      const existingReview = await Review.findOne({ user, subService });
-      if (existingReview) {
-          return res.status(400).json({
-              success: false,
-              message: "You have already submitted a review for this sub-service."
-          });
-      }
-
-      // Create and save the new review
-      const review = new Review({ user, subService, rating, comment });
-      await review.save();
-      
-
-
-      res.status(201).json({ 
-          success: true,
-          message: 'Review submitted successfully', 
-          review 
+    // Check if the user has already reviewed this subService
+    const existingReview = await Review.findOne({ user, subService });
+    if (existingReview) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already submitted a review for this sub-service.",
       });
+    }
+
+    // Create and save the new review
+    const review = new Review({ user, subService, rating, comment });
+    await review.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully",
+      review,
+    });
   } catch (error) {
-      console.error("Error submitting review:", error);
-      res.status(400).json({ 
-          success: false, 
-          message: 'Error submitting review', 
-          error: error.message 
-      });
+    console.error("Error submitting review:", error);
+    res.status(400).json({
+      success: false,
+      message: "Error submitting review",
+      error: error.message,
+    });
   }
 };
 
 // Get reviews for a specific subservice
 
 exports.getReviews = async (req, res) => {
-    const { subServiceId } = req.params;
-    try {
-        const reviews = await Review.find({ subService: subServiceId }).populate('user', 'name');
-        res.status(200).json(reviews);
-    } catch (error) {
-        res.status(400).json({ message: 'Error retrieving reviews', error: error.message });
-    }
+  const { subServiceId } = req.params;
+  try {
+    const reviews = await Review.find({ subService: subServiceId }).populate(
+      "user",
+      "name"
+    );
+    res.status(200).json(reviews);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error retrieving reviews", error: error.message });
+  }
 };
 
 exports.topUpWallet = async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const wallet = await Wallet.findOne({ userId });
-  
-      if (!wallet) {
-        return res.status(404).json({ message: "Wallet not found" });
-      }
-  
-      res.json({ balance: wallet.balance, transactions: wallet.transactions });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  try {
+    const { userId } = req.params;
+    const wallet = await Wallet.findOne({ userId });
+
+    if (!wallet) {
+      return res.status(404).json({ message: "Wallet not found" });
     }
-  };
+
+    res.json({ balance: wallet.balance, transactions: wallet.transactions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.transactionsWallet = async (req, res) => {
   try {
@@ -104,9 +107,7 @@ exports.transactionsWallet = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-
-
+};
 
 // // Function to get all reviews
 // exports.getAllReviews = async (req, res) => {
@@ -171,8 +172,6 @@ exports.transactionsWallet = async (req, res) => {
 //         });
 //     }
 // };
-
-
 
 // Get all reviews for Admin
 // exports.getAllReviewsForAdmin = async (req, res) => {
@@ -242,133 +241,129 @@ exports.transactionsWallet = async (req, res) => {
 //     }
 // };
 
-
-
-
 // Get all reviews for Admin with partner details
 
-
 exports.getAllReviewsForAdminWithPartnerDetails = async (req, res) => {
-    try {
-        const reviews = await Review.find()
-            .populate('subService', 'name') // Populate sub-service name
-            .populate({
-                path: 'partner',
-                select: 'name email phone address', // Populate partner/provider details
-            })
-            .lean(); // Convert to plain JS objects for better performance
+  try {
+    const reviews = await Review.find()
+      .populate("subService", "name") // Populate sub-service name
+      .populate({
+        path: "partner",
+        select: "name email phone address", // Populate partner/provider details
+      })
+      .lean(); // Convert to plain JS objects for better performance
 
-        return res.status(200).json({
-            success: true,
-            count: reviews.length,
-            data: reviews.map(review => ({
-                rating: review.rating,
-                comment: review.comment,
-                subServiceName: review.subService?.name || 'N/A',
-                partner: review.partner,
-            }))
-        });
-    } catch (error) {
-        console.error('Error fetching admin reviews with partner details:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error fetching admin reviews with partner details',
-            error: error.message
-        });
-    }
+    return res.status(200).json({
+      success: true,
+      count: reviews.length,
+      data: reviews.map((review) => ({
+        rating: review.rating,
+        comment: review.comment,
+        subServiceName: review.subService?.name || "N/A",
+        partner: review.partner,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching admin reviews with partner details:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching admin reviews with partner details",
+      error: error.message,
+    });
+  }
 };
-
 
 // Review partner
 exports.reviewPartner = async (req, res) => {
   try {
-      const { bookingId, partnerId, rating, comment } = req.body;
-      const userId = req.user._id;
+    const { bookingId, partnerId, rating, comment } = req.body;
+    const userId = req.user._id;
 
-      // Check if the booking exists and belongs to the user
-      const booking = await Booking.findOne({
-          _id: bookingId,
-          user: userId,
-          partner: partnerId,
-          status: "completed"
+    // Check if the booking exists and belongs to the user
+    const booking = await Booking.findOne({
+      _id: bookingId,
+      user: userId,
+      partner: partnerId,
+      status: "completed",
+    });
+
+    if (!booking) {
+      return res
+        .status(400)
+        .json({ message: "Invalid booking or booking not completed." });
+    }
+
+    // Find the partner
+    const partner = await Partner.findById(partnerId);
+    if (!partner) {
+      return res.status(404).json({ message: "Partner not found." });
+    }
+
+    // Check if the user has already reviewed this partner
+    const existingReview = partner.reviews.find(
+      (review) => review.user.toString() === userId.toString()
+    );
+
+    if (existingReview) {
+      return res.status(400).json({
+        message: "You have already submitted a review for this partner.",
       });
+    }
 
-      if (!booking) {
-          return res.status(400).json({ message: "Invalid booking or booking not completed." });
-      }
+    // Create review object
+    const review = {
+      user: userId,
+      booking: bookingId,
+      partner: partnerId,
+      rating,
+      comment,
+      createdAt: new Date(),
+    };
 
-      // Find the partner
-      const partner = await Partner.findById(partnerId);
-      if (!partner) {
-          return res.status(404).json({ message: "Partner not found." });
-      }
+    // Push review into the partner's reviews array
+    partner.reviews.push(review);
+    await partner.save();
 
-      // Check if the user has already reviewed this partner
-      const existingReview = partner.reviews.find(
-          (review) => review.user.toString() === userId.toString()
-      );
-
-      if (existingReview) {
-          return res.status(400).json({
-              message: "You have already submitted a review for this partner."
-          });
-      }
-
-      // Create review object
-      const review = {
-          user: userId,
-          booking: bookingId,
-          partner: partnerId,
-          rating,
-          comment,
-          createdAt: new Date()
-      };
-
-      // Push review into the partner's reviews array
-      partner.reviews.push(review);
-      await partner.save();
-
-      res.status(201).json({ message: "Review submitted successfully!", review });
+    res.status(201).json({ message: "Review submitted successfully!", review });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error. Please try again later." });
+    console.error(error);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
 
-
 exports.ContactUs = async (req, res) => {
-    try {
-      const { fullName, email, phone, message } = req.body;
-      
-      if (!fullName || !email || !phone || !message) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
-  
-      const newContact = new Contact({ fullName, email, phone, message });
-      await newContact.save();
-      
-      res.status(201).json({ message: "Your query has been sent successfully!" });
-    } catch (error) {
-      console.error("Error saving contact form data:", error);
-      res.status(500).json({ error: "Server error. Please try again later." });
+  try {
+    const { fullName, email, phone, message } = req.body;
+
+    if (!fullName || !email || !phone || !message) {
+      return res.status(400).json({ error: "All fields are required" });
     }
+
+    const newContact = new Contact({ fullName, email, phone, message });
+    await newContact.save();
+
+    res.status(201).json({ message: "Your query has been sent successfully!" });
+  } catch (error) {
+    console.error("Error saving contact form data:", error);
+    res.status(500).json({ error: "Server error. Please try again later." });
   }
-  
-  exports.getAllContactUs = async (req, res) => {
-    try {
-      // const { fullName, email, phone, message } = req.body;
-      
-      // if (!fullName || !email || !phone || !message) {
-      //   return res.status(400).json({ error: "All fields are required" });
-      // }
-  
-      // const newContact = new Contact({ fullName, email, phone, message });
-      // await newContact.save();
-      const allContacts = await Contact.find(); 
-      
-      res.status(201).json({ data : allContacts });
-    } catch (error) {
-      console.error("Error fetching contact  data:", error);
-      res.status(500).json({ error: "Server error. Please try again later." });
-    }
+};
+
+exports.getAllContactUs = async (req, res) => {
+  try {
+    // const { fullName, email, phone, message } = req.body;
+
+    // if (!fullName || !email || !phone || !message) {
+    //   return res.status(400).json({ error: "All fields are required" });
+    // }
+
+    // const newContact = new Contact({ fullName, email, phone, message });
+    // await newContact.save();
+    const allContacts = await Contact.find();
+
+    res.status(201).json({ data: allContacts });
+  } catch (error) {
+    console.error("Error fetching contact  data:", error);
+    res.status(500).json({ error: "Server error. Please try again later." });
   }
+};

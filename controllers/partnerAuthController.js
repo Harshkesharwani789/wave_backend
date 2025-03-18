@@ -1,4 +1,4 @@
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const PartnerProfile = require("../models/PartnerProfile");
 const PartnerWallet = require("../models/PartnerWallet");
 const jwt = require("jsonwebtoken");
@@ -157,13 +157,11 @@ exports.verifyLoginOTP = async (req, res) => {
     });
   } catch (error) {
     console.error("Login Error:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error during login",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error during login",
+      error: error.message,
+    });
   }
 };
 
@@ -280,24 +278,20 @@ exports.completeProfile = async (req, res) => {
         .json({ success: false, message: "Partner not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Partner updated successfully",
-        data: updatedPartner,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Partner updated successfully",
+      data: updatedPartner,
+    });
 
     // return res.status(201).json({ success: true, message: "Profile created successfully", data: newPartner });
   } catch (error) {
     console.error("Complete Profile Error:", error.message);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
@@ -377,22 +371,18 @@ exports.selectCategoryAndServices = async (req, res) => {
         .json({ success: false, message: "Partner not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Profile updated successfully",
-        data: updatedPartner,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedPartner,
+    });
   } catch (error) {
     console.error("Update Profile Error:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal Server Error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 

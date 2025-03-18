@@ -1,9 +1,9 @@
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const PartnerProfile = require("../models/PartnerProfile");
 const jwt = require("jsonwebtoken");
 const { sendOTP } = require("../utils/sendOTP");
-const path = require('path');
-const Booking = require('../models/booking');
+const path = require("path");
+const Booking = require("../models/booking");
 
 const sendLoginOTP = async (req, res) => {
   try {
@@ -95,7 +95,7 @@ const verifyOTP = async (req, res) => {
     res.status(200).json({
       token,
       isProfileCompleted: partner.profileCompleted,
-      partnerId: partner._id
+      partnerId: partner._id,
     });
   } catch (error) {
     console.error("OTP Verification Error:", error);
@@ -109,32 +109,41 @@ const updateProfile = async (req, res) => {
     console.log("Request file:", req.file);
     console.log("Partner ID:", req.partner._id);
 
-    const { 
-      name, 
-      email, 
-      whatsappNumber, 
-      highestQualification, 
+    const {
+      name,
+      email,
+      whatsappNumber,
+      highestQualification,
       experience,
       category,
       service,
-      modeOfService 
+      modeOfService,
     } = req.body;
-    
+
     // Validate required fields
-    if (!name || !email || !whatsappNumber || !highestQualification || !experience || !category || !service || !modeOfService) {
-      console.log("Missing fields:", { 
-        name, 
-        email, 
-        whatsappNumber, 
-        highestQualification, 
+    if (
+      !name ||
+      !email ||
+      !whatsappNumber ||
+      !highestQualification ||
+      !experience ||
+      !category ||
+      !service ||
+      !modeOfService
+    ) {
+      console.log("Missing fields:", {
+        name,
+        email,
+        whatsappNumber,
+        highestQualification,
         experience,
         category,
         service,
-        modeOfService 
+        modeOfService,
       });
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "All fields are required" 
+        message: "All fields are required",
       });
     }
 
@@ -142,13 +151,14 @@ const updateProfile = async (req, res) => {
     if (!["online", "offline", "both"].includes(modeOfService)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid mode of service. Must be one of: online, offline, both"
+        message:
+          "Invalid mode of service. Must be one of: online, offline, both",
       });
     }
 
     const partner = await Partner.findById(req.partner._id);
     console.log("Found partner:", partner);
-    
+
     // Update profile
     partner.profile = {
       ...partner.profile,
@@ -159,7 +169,7 @@ const updateProfile = async (req, res) => {
       experience,
       category,
       service,
-      modeOfService
+      modeOfService,
     };
 
     // Handle profile picture if uploaded
@@ -175,15 +185,15 @@ const updateProfile = async (req, res) => {
       success: true,
       message: "Profile updated successfully",
       partnerId: req.partner._id,
-      profile: savedPartner.profile
+      profile: savedPartner.profile,
     });
   } catch (error) {
     console.error("Full error details:", error);
     console.error("Error stack:", error.stack);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: "Error updating profile",
-      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+      debug: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -214,24 +224,31 @@ const updateLanguagePreference = async (req, res) => {
   }
 };
 
-const getDashboardStats = async (req, res) => { /* ... */ };
+const getDashboardStats = async (req, res) => {
+  /* ... */
+};
 const uploadKYCDocuments = async (req, res) => {
   try {
     const { accountNumber, ifscCode, accountHolderName } = req.body;
-    
+
     // Validate bank details
     if (!accountNumber || !ifscCode || !accountHolderName) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: "All bank details are required" 
+        message: "All bank details are required",
       });
     }
 
     // Validate file uploads
-    if (!req.files || !req.files.panCard || !req.files.aadhaarCard || !req.files.cancelledCheque) {
-      return res.status(400).json({ 
+    if (
+      !req.files ||
+      !req.files.panCard ||
+      !req.files.aadhaarCard ||
+      !req.files.cancelledCheque
+    ) {
+      return res.status(400).json({
         success: false,
-        message: "All documents are required" 
+        message: "All documents are required",
       });
     }
 
@@ -245,29 +262,31 @@ const uploadKYCDocuments = async (req, res) => {
       bankDetails: {
         accountNumber,
         ifscCode,
-        accountHolderName
+        accountHolderName,
       },
-      submittedAt: new Date()
+      submittedAt: new Date(),
     };
 
-    partner.kycStatus = 'under_review';
+    partner.kycStatus = "under_review";
     await partner.save();
 
     res.json({
       success: true,
       message: "KYC documents uploaded successfully",
       partnerId: req.partner._id,
-      kycStatus: partner.kycStatus
+      kycStatus: partner.kycStatus,
     });
   } catch (error) {
     console.error("Upload KYC Error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: "Error uploading KYC documents" 
+      message: "Error uploading KYC documents",
     });
   }
 };
-const getKYCStatus = async (req, res) => { /* ... */ };
+const getKYCStatus = async (req, res) => {
+  /* ... */
+};
 
 const completeBooking = async (req, res) => {
   const bookingId = req.params.id;
@@ -275,47 +294,54 @@ const completeBooking = async (req, res) => {
 
   try {
     // Update the booking status to completed
-    const booking = await Booking.findByIdAndUpdate(bookingId, { status: 'completed', photos: photos.map(file => file.path) }, { new: true });
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId,
+      { status: "completed", photos: photos.map((file) => file.path) },
+      { new: true }
+    );
 
     if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
+      return res.status(404).json({ message: "Booking not found" });
     }
 
-    res.status(200).json({ message: 'Booking marked as completed', booking });
+    res.status(200).json({ message: "Booking marked as completed", booking });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking booking as completed', error });
+    res
+      .status(500)
+      .json({ message: "Error marking booking as completed", error });
   }
 };
 
 // Get all partner KYC details
 const getAllPartnerKYC = async (req, res) => {
   try {
-      const partners = await Partner.find({ 'kycDetails.isVerified': false }) // Fetch only unverified partners
-          .select('name email phone kycDetails') // Select the fields you want
-          .lean(); // Convert to plain JS objects for better performance
+    const partners = await Partner.find({ "kycDetails.isVerified": false }) // Fetch only unverified partners
+      .select("name email phone kycDetails") // Select the fields you want
+      .lean(); // Convert to plain JS objects for better performance
 
-      return res.status(200).json({
-          success: true,
-          count: partners.length,
-          data: partners.map(partner => ({
-              id: partner._id,
-              name: partner.name,
-              email: partner.email,
-              phone: partner.phone,
-              kycDetails: {
-                  isVerified: partner.kycDetails.isVerified,
-                  panImage: partner.kycDetails.panImage || 'No PAN image available',
-                  aadharImage: partner.kycDetails.aadharImage || 'No Aadhar image available',
-              },
-          }))
-      });
+    return res.status(200).json({
+      success: true,
+      count: partners.length,
+      data: partners.map((partner) => ({
+        id: partner._id,
+        name: partner.name,
+        email: partner.email,
+        phone: partner.phone,
+        kycDetails: {
+          isVerified: partner.kycDetails.isVerified,
+          panImage: partner.kycDetails.panImage || "No PAN image available",
+          aadharImage:
+            partner.kycDetails.aadharImage || "No Aadhar image available",
+        },
+      })),
+    });
   } catch (error) {
-      console.error('Error fetching partner KYC details:', error);
-      return res.status(500).json({
-          success: false,
-          message: 'Error fetching partner KYC details',
-          error: error.message
-      });
+    console.error("Error fetching partner KYC details:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching partner KYC details",
+      error: error.message,
+    });
   }
 };
 // Single export statement at the end
@@ -329,5 +355,5 @@ module.exports = {
   uploadKYCDocuments,
   getKYCStatus,
   completeBooking,
-  getAllPartnerKYC
+  getAllPartnerKYC,
 };

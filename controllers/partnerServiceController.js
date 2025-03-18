@@ -1,6 +1,6 @@
 const PartnerService = require("../models/PartnerService");
 const ServiceCategory = require("../models/ServiceCategory");
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const Booking = require("../models/booking");
 const PartnerProfile = require("../models/PartnerProfile");
 const jwt = require("jsonwebtoken");
@@ -8,7 +8,6 @@ const SubService = require("../models/SubService");
 const mongoose = require("mongoose");
 const Product = require("../models/product");
 const User = require("../models/User");
-
 
 // Get all available services for partners
 exports.getAvailableServices = async (req, res) => {
@@ -475,12 +474,10 @@ exports.acceptBooking = async (req, res) => {
 
     // Check if booking is already accepted or canceled
     if (["accepted", "cancelled"].includes(booking.status) || booking.partner) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "This booking has already been accepted or cancelled",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "This booking has already been accepted or cancelled",
+      });
     }
 
     // Update Booking: Assign partner and change status to 'accepted'
@@ -1309,12 +1306,10 @@ exports.reviewUser = async (req, res) => {
     });
 
     if (!booking) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid booking or booking not completed.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid booking or booking not completed.",
+      });
     }
 
     // Find the user
@@ -1350,24 +1345,19 @@ exports.reviewUser = async (req, res) => {
     user.reviews.push(review);
     await user.save();
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Review submitted successfully!",
-        review,
-      });
+    res.status(201).json({
+      success: true,
+      message: "Review submitted successfully!",
+      review,
+    });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server error. Please try again later.",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+    });
   }
 };
-
 
 exports.topUpPartnerWallet = async (req, res) => {
   try {
@@ -1375,7 +1365,7 @@ exports.topUpPartnerWallet = async (req, res) => {
 
     // Validate input
     if (!partnerId || !amount || !type) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     // Find or create partner wallet
@@ -1385,8 +1375,8 @@ exports.topUpPartnerWallet = async (req, res) => {
     }
 
     // Check for sufficient balance on debit
-    if (type === 'Debit' && wallet.balance < amount) {
-      return res.status(400).json({ message: 'Insufficient balance' });
+    if (type === "Debit" && wallet.balance < amount) {
+      return res.status(400).json({ message: "Insufficient balance" });
     }
 
     // Create new transaction
@@ -1399,12 +1389,12 @@ exports.topUpPartnerWallet = async (req, res) => {
 
     // Update wallet balance and transactions
     wallet.transactions.push(newTransaction);
-    wallet.balance += type === 'Credit' ? amount : -amount;
+    wallet.balance += type === "Credit" ? amount : -amount;
 
     // Save wallet
     await wallet.save();
 
-    res.status(201).json({ message: 'Transaction successful', wallet });
+    res.status(201).json({ message: "Transaction successful", wallet });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

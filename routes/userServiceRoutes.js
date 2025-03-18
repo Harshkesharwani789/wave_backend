@@ -22,7 +22,7 @@ const {
 } = require("../controllers/cartController");
 const ReviewController = require("../controllers/reviewController");
 const { getAllOffers } = require("../controllers/offerController");
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const booking = require("../models/booking");
 
 /**

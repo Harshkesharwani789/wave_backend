@@ -1,4 +1,4 @@
-const Partner = require("../models/Partner");
+const Partner = require("../models/Paartner");
 const PartnerLocation = require("../models/Partnerlocation");
 const PartnerService = require("../models/PartnerService");
 
